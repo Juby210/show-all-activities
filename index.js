@@ -4,6 +4,14 @@ const { Button, Icon, Tooltip } = require('powercord/components')
 const { findInReactTree } = require('powercord/util')
 const { inject, uninject } = require('powercord/injector')
 
+let temp
+const filterActivities = (a, i) => {
+    if (i == 0) temp = []
+    if (temp.includes(a.application_id)) return false
+    temp.push(a.application_id)
+    return a.type != 4
+}
+
 module.exports = class ShowAllActivities extends Plugin {
     async startPlugin() {
         this.loadStylesheet('style.css')
@@ -16,7 +24,7 @@ module.exports = class ShowAllActivities extends Plugin {
         const Icon2 = Icon || (props => React.createElement(getModule(m => m.id && typeof m.keys === 'function' && m.keys().includes('./Activity'), false)('./' + props.name).default, props))
 
         inject('show-all-activities-pre', UserActivity.prototype, 'render', function (args) {
-            const activities = getActivities(this.props.user.id).filter(a => a.type != 4)
+            const activities = getActivities(this.props.user.id).filter(filterActivities)
             if (!activities) return args
             if (!this.state) this.state = { activity: activities.indexOf(this.props.activity) }
             else {
@@ -29,7 +37,7 @@ module.exports = class ShowAllActivities extends Plugin {
         }, true)
 
         inject('show-all-activities', UserActivity.prototype, 'render', function (_, res) {
-            const activities = getActivities(this.props.user.id).filter(a => a.type != 4)
+            const activities = getActivities(this.props.user.id).filter(filterActivities)
             if (!res || !activities) return res
             const { children } = res.props.children[1].props
             const marginClass = this.props.activity.details || this.props.activity.state ? ' allactivities-margin' : ''
