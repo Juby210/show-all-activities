@@ -7,8 +7,8 @@ const { inject, uninject } = require('powercord/injector')
 let temp
 const filterActivities = (a, i) => {
     if (i == 0) temp = []
-    if (temp.includes(a.application_id)) return false
-    temp.push(a.application_id)
+    if (temp.includes(a.application_id || a.name)) return false
+    temp.push(a.application_id || a.name)
     return a.type != 4
 }
 
