@@ -20,12 +20,9 @@ module.exports = class ShowAllActivities extends Plugin {
         const { getGame } = await getModule(['getGame', 'getGameByName'])
         const UserActivity = await getModuleByDisplayName('UserActivity')
 
-        // Icon component polyfill bcs v2 doesn't have it yet
-        const Icon2 = Icon || (props => React.createElement(getModule(m => m.id && typeof m.keys === 'function' && m.keys().includes('./Activity'), false)('./' + props.name).default, props))
-
         inject('show-all-activities-pre', UserActivity.prototype, 'render', function (args) {
             const activities = getActivities(this.props.user.id).filter(filterActivities)
-            if (!activities) return args
+            if (!activities || !activities.length) return args
             if (!this.state) this.state = { activity: activities.indexOf(this.props.activity) }
             else {
                 const activity = activities[this.state.activity]
@@ -38,9 +35,11 @@ module.exports = class ShowAllActivities extends Plugin {
 
         inject('show-all-activities', UserActivity.prototype, 'render', function (_, res) {
             const activities = getActivities(this.props.user.id).filter(filterActivities)
-            if (!res || !activities) return res
+            if (!res || !activities || !activities.length) return res
             const { children } = res.props.children[1].props
-            const marginClass = this.props.activity.details || this.props.activity.state ? ' allactivities-margin' : ''
+            const marginClass = this.props.activity.details || this.props.activity.state ?
+                ` allactivities-margin${this.props.activity.type == 1 && this.props.source == 'Profile Modal' ? '2' : ''}`
+                : ''
 
             if (this.state.activity != 0) children.unshift(React.createElement(Tooltip, {
                 className: `allactivities-left${marginClass}`,
@@ -51,7 +50,7 @@ module.exports = class ShowAllActivities extends Plugin {
                 color: Button.Colors.WHITE,
                 look: Button.Looks.OUTLINED,
                 onClick: () => this.setState({ activity: this.state.activity - 1 })
-            }, React.createElement(Icon2, { direction: 'LEFT', name: 'Arrow' }))))
+            }, React.createElement(Icon, { direction: 'LEFT', name: 'Arrow' }))))
             if (this.state.activity < activities.length - 1) children.push(React.createElement(Tooltip, {
                 className: `allactivities-right${marginClass}`,
                 text: Messages.NEXT
@@ -61,7 +60,7 @@ module.exports = class ShowAllActivities extends Plugin {
                 color: Button.Colors.WHITE,
                 look: Button.Looks.OUTLINED,
                 onClick: () => this.setState({ activity: this.state.activity + 1 })
-            }, React.createElement(Icon2, { direction: 'RIGHT', name: 'Arrow' }))))
+            }, React.createElement(Icon, { direction: 'RIGHT', name: 'Arrow' }))))
 
             const actions = findInReactTree(res.props, c => c && c.onOpenConnections)
             if (actions) actions.activity = this.props.activity
