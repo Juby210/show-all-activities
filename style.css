@@ -10,3 +10,10 @@
 .allactivities-margin2 {
     margin-top: 22px;
 }
+
+.allactivities-collapsibleheader {
+    cursor: pointer;
+}
+.allactivities-collapsibleheader:not(:nth-child(1)) {
+    margin-top: 20px;
+}
