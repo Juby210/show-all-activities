@@ -1,101 +1,193 @@
-const { Plugin } = require('powercord/entities')
-const { getModule, getModuleByDisplayName, i18n: { Messages }, React } = require('powercord/webpack')
-const { Button, Icon, Tooltip } = require('powercord/components')
-const { findInReactTree } = require('powercord/util')
-const { inject, uninject } = require('powercord/injector')
+const { Plugin } = require('powercord/entities');
+const {
+  getModule,
+  getModuleByDisplayName,
+  i18n: { Messages },
+  React
+} = require('powercord/webpack');
+const { Button, Icon, Tooltip } = require('powercord/components');
+const { findInReactTree } = require('powercord/util');
+const { inject, uninject } = require('powercord/injector');
 
-const CollapsibleActivity = require('./components/CollapsibleActivity')
-const Settings = require('./components/Settings')
+const CollapsibleActivity = require('./components/CollapsibleActivity');
+const Settings = require('./components/Settings');
 
-let temp
+let temp;
 const filterActivities = (a, i) => {
-    if (i == 0) temp = []
-    if (temp.includes(a.application_id || a.name)) return false
-    temp.push(a.application_id || a.name)
-    return a.type != 4
-}
+  if (i === 0) {
+    temp = [];
+  }
+  if (temp.includes(a.application_id || a.name)) {
+    return false;
+  }
+  temp.push(a.application_id || a.name);
+  return a.type !== 4;
+};
 
 module.exports = class ShowAllActivities extends Plugin {
-    async startPlugin() {
-        this.loadStylesheet('style.css')
-        powercord.api.settings.registerSettings(this.entityID, {
-            category: this.entityID,
-            label: 'Show All Activities',
-            render: Settings
-        })
-        const classes = await getModule(['iconButtonSize'])
-        const { getActivities } = await getModule(['getActivities'])
-        const { getGame } = await getModule(['getGame', 'getGameByName'])
-        const UserActivity = await getModuleByDisplayName('UserActivity')
+  async startPlugin () {
+    this.loadStylesheet('style.css');
+    powercord.api.settings.registerSettings(this.entityID, {
+      category: this.entityID,
+      label: 'Show All Activities',
+      render: Settings
+    });
+    const classes = await getModule([ 'iconButtonSize' ]);
+    const { getActivities } = await getModule([ 'getActivities' ]);
+    const { getGame } = await getModule([ 'getGame', 'getGameByName' ]);
+    const UserActivity = await getModuleByDisplayName('UserActivity');
 
-        inject('show-all-activities-pre', UserActivity.prototype, 'render', function (args) {
-            if (this.props.__saa) return args
-            const activities = getActivities(this.props.user.id).filter(filterActivities)
-            if (!activities || !activities.length) return args
-            if (!this.state) this.state = { activity: activities.indexOf(this.props.activity) }
-            else {
-                const activity = activities[this.state.activity]
-                if (!activity) return args
-                this.props.activity = activity
-                this.props.game = getGame(activity.application_id)
-            }
-            return args
-        }, true)
+    inject(
+      'show-all-activities-pre',
+      UserActivity.prototype,
+      'render',
+      function (args) {
+        if (this.props.__saa) {
+          return args;
+        }
+        const activities = getActivities(this.props.user.id).filter(
+          filterActivities
+        );
+        if (!activities || !activities.length) {
+          return args;
+        }
+        if (!this.state) {
+          this.state = { activity: activities.indexOf(this.props.activity) };
+        } else {
+          const activity = activities[this.state.activity];
+          if (!activity) {
+            return args;
+          }
+          this.props.activity = activity;
+          this.props.game = getGame(activity.application_id);
+        }
+        return args;
+      },
+      true
+    );
 
-        const _this = this
-        inject('show-all-activities', UserActivity.prototype, 'render', function (_, res) {
-            if (this.props.__saa) {
-                res = res.props.children
-                const actions = findInReactTree(res, c => c && c.onOpenConnections)
-                if (actions) actions.activity = this.props.activity
-                return res
-            }
+    const _this = this;
+    inject(
+      'show-all-activities',
+      UserActivity.prototype,
+      'render',
+      function (_, res) {
+        if (this.props.__saa) {
+          res = res.props.children;
+          const actions = findInReactTree(res, (c) => c && c.onOpenConnections);
+          if (actions) {
+            actions.activity = this.props.activity;
+          }
+          return res;
+        }
 
-            const activities = getActivities(this.props.user.id).filter(filterActivities)
-            const collapsible = _this.settings.get('collapsibleActivities')
-            if (!res?.props?.children || !activities || !activities.length || collapsible && activities.length <= 1) return res
-            if (collapsible) {
-                res.props.children = activities.map(a => React.createElement(CollapsibleActivity, {
-                    ...this.props, activity: a, game: getGame(a.application_id)
-                }))
-                return res
-            }
+        const activities = getActivities(this.props.user.id).filter(
+          filterActivities
+        );
 
-            const { children } = res.props.children[1].props
-            const marginClass = this.props.activity.details || this.props.activity.state ?
-                ` allactivities-margin${this.props.activity.type == 1 && this.props.source == 'Profile Modal' ? '2' : ''}`
-                : ''
+        const useButtons = _this.settings.get('useButtons');
 
-            if (this.state.activity != 0) children.unshift(React.createElement(Tooltip, {
-                className: `allactivities-left${marginClass}`,
-                text: Messages.PAGINATION_PREVIOUS
-            }, React.createElement(Button, {
-                className: classes.iconButtonSize,
+        if (
+          !res?.props?.children ||
+          !activities ||
+          !activities.length ||
+          (!useButtons && activities.length <= 1)
+        ) {
+          return res;
+        }
+
+        if (!useButtons) {
+          res.props.children = activities.map((a) =>
+            React.createElement(CollapsibleActivity, {
+              ...this.props,
+              activity: a,
+              settings: _this.settings,
+              game: getGame(a.application_id)
+            })
+          );
+          return res;
+        }
+
+        // eslint-disable-next-line consistent-this
+        const _this2 = this;
+        const topButtons = _this.settings.get('topButtons');
+        const alwaysButtons = _this.settings.get('alwaysButtons');
+
+        function createButton (left) {
+          return React.createElement(
+            Tooltip,
+            {
+              className: `allactivities-margin${topButtons ? ' allactivities-width' : ''}`,
+              text: left ? Messages.PAGINATION_PREVIOUS : Messages.NEXT
+            },
+            React.createElement(
+              Button,
+              {
+                className: !topButtons ? classes.iconButtonSize : 'allactivities-width',
                 size: Button.Sizes.MIN,
                 color: Button.Colors.WHITE,
                 look: Button.Looks.OUTLINED,
-                onClick: () => this.setState({ activity: this.state.activity - 1 })
-            }, React.createElement(Icon, { direction: 'LEFT', name: 'Arrow' }))))
-            if (this.state.activity < activities.length - 1) children.push(React.createElement(Tooltip, {
-                className: `allactivities-right${marginClass}`,
-                text: Messages.NEXT
-            }, React.createElement(Button, {
-                className: classes.iconButtonSize,
-                size: Button.Sizes.MIN,
-                color: Button.Colors.WHITE,
-                look: Button.Looks.OUTLINED,
-                onClick: () => this.setState({ activity: this.state.activity + 1 })
-            }, React.createElement(Icon, { direction: 'RIGHT', name: 'Arrow' }))))
+                onClick () {
+                  if ((_this2.state.activity - (left ? 1 : -1)) < 0 || (_this2.state.activity - (left ? 1 : -1)) >= activities.length) {
+                    return;
+                  }
+                  _this2.setState({ activity: _this2.state.activity - (left ? 1 : -1) });
+                },
+                disabled: alwaysButtons && (_this2.state.activity - (left ? 1 : -1) < 0 || (_this2.state.activity - (left ? 1 : -1)) >= activities.length)
+              },
+              React.createElement(Icon, { direction: left ? 'LEFT' : 'RIGHT',
+                name: 'Arrow' })
+            )
+          );
+        }
 
-            const actions = findInReactTree(res.props, c => c && c.onOpenConnections)
-            if (actions) actions.activity = this.props.activity
-            return res
-        })
-    }
+        function createLeftButton () {
+          return createButton(true);
+        }
+        function createRightButton () {
+          return createButton(false);
+        }
+        const { children: children1 } = res.props;
+        const { children: children2 } = res.props.children[1].props;
 
-    pluginWillUnload() {
-        powercord.api.settings.unregisterSettings(this.entityID)
-        uninject('show-all-activities-pre')
-        uninject('show-all-activities')
-    }
-}
+        if (topButtons) {
+          children1.unshift(
+            React.createElement(
+              'div',
+              {
+                style: {
+                  marginBottom: '8px',
+                  display: 'flex'
+                }
+              },
+              (this.state.activity !== 0 || alwaysButtons) ? createLeftButton() : '',
+              (this.state.activity < activities.length - 1 || alwaysButtons) ? createRightButton() : ''
+            )
+          );
+        } else {
+          if (this.state.activity !== 0 || alwaysButtons) {
+            children2.unshift(createLeftButton());
+          }
+          if (this.state.activity < activities.length - 1 || alwaysButtons) {
+            children2.push(createRightButton());
+          }
+        }
+
+        const actions = findInReactTree(
+          res.props,
+          (c) => c && c.onOpenConnections
+        );
+        if (actions) {
+          actions.activity = this.props.activity;
+        }
+        return res;
+      }
+    );
+  }
+
+  pluginWillUnload () {
+    powercord.api.settings.unregisterSettings(this.entityID);
+    uninject('show-all-activities-pre');
+    uninject('show-all-activities');
+  }
+};

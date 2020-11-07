@@ -1,17 +1,32 @@
-.allactivities-left {
-    margin-right: 8px;
-}
-.allactivities-right {
-    margin-left: 8px;
-}
 .allactivities-margin {
     margin-top: 12px;
 }
+
+.allactivities-margin:first-child {
+    margin-right: 8px;
+}
+
+.allactivities-margin:last-child {
+    margin-left: 8px;
+}
+
 .allactivities-margin2 {
     margin-top: 22px;
 }
 
-.allactivities-collapsibleheader {
+.allactivities-margin2:first-child {
+    margin-right: 8px;
+}
+
+.allactivities-margin2:last-child {
+    margin-left: 8px;
+}
+
+.allactivities-width {
+    width: 100%;
+}
+
+.allactivities-pointer {
     cursor: pointer;
 }
 .allactivities-collapsibleheader:not(:nth-child(1)) {
