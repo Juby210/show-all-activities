@@ -9,13 +9,13 @@ module.exports = class CollapsibleActivity extends React.PureComponent {
     }
 
     render() {
-        const header = UserActivity.prototype.renderHeader.apply({ props: {}, activity: this.props.activity })
+        const header = UserActivity.prototype.renderHeader.apply({ props: this.props, activity: this.props.activity })
         header.props.children.push(<Icon name={`ArrowDrop${this.state.opened ? 'Up' : 'Down'}`} style={{ marginLeft: 'auto' }} />)
         header.props.onClick = () => this.setState({ opened: !this.state.opened })
         header.props.className += ' allactivities-collapsibleheader'
         if (!this.state.opened) {
             if (!header.props.children.find(c => c?.includes && c.includes(this.props.activity.name)))
-                header.props.children.splice(header.props.children.length - 1, 0, ' ' + this.props.activity.name)
+                header.props.children.splice(header.props.children.length - 2, 0, ' ' + this.props.activity.name)
             return header
         }
         return <>
