@@ -5,11 +5,12 @@ const UserActivity = getModuleByDisplayName('UserActivity', false)
 module.exports = class CollapsibleActivity extends React.PureComponent {
     constructor(props) {
         super(props)
-        this.state = {}
+        this.state = { opened: props.defaultOpened }
     }
 
     render() {
         const header = UserActivity.prototype.renderHeader.apply({ props: this.props, activity: this.props.activity })
+        if (!Array.isArray(header?.props?.children)) return null
         header.props.children.push(<Icon name={`ArrowDrop${this.state.opened ? 'Up' : 'Down'}`} style={{ marginLeft: 'auto' }} />)
         header.props.onClick = () => this.setState({ opened: !this.state.opened })
         header.props.className += ' allactivities-collapsibleheader'
