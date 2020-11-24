@@ -50,7 +50,7 @@ module.exports = class ShowAllActivities extends Plugin {
 
         const _this = this
         inject('show-all-activities', UserActivity.prototype, 'render', function (_, res) {
-            if (this.props.__saa || this.state.activity > 0) {
+            if (this.props.__saa || this.state?.activity > 0) {
                 const actions = findInReactTree(res, c => c && c.onOpenConnections)
                 if (actions) {
                     actions.activity = this.props.activity
