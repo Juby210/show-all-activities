@@ -64,12 +64,13 @@ module.exports = class ShowAllActivities extends Plugin {
             }
 
             const activities = getActivities(this.props.user.id).filter(filterActivities)
-            const collapsible = _this.settings.get('collapsibleActivities')
-            if (!res?.props?.children || !activities || !activities.length || collapsible && activities.length <= 1) return res
-            if (collapsible) {
+            const useButtons = _this.settings.get('useButtons');
+            if (!res?.props?.children || !activities || !activities.length || activities.length <= 1) return res
+            if (!useButtons) {
+                const collapsible = _this.settings.get('collapsibleActivities')
                 const defaultOpened = _this.settings.get('autoOpen')
                 res.props.children = activities.map((a, i) => React.createElement(CollapsibleActivity, {
-                    ...this.props, activity: a, game: getGame(a.application_id), defaultOpened, i
+                    ...this.props, activity: a, game: getGame(a.application_id), defaultOpened, collapsible, i
                 }))
                 return res
             }

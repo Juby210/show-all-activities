@@ -11,7 +11,7 @@
     margin-top: 22px;
 }
 
-.allactivities-collapsibleheader {
+.allactivities-pointer {
     cursor: pointer;
 }
 .allactivities-collapsibleheader:not(:nth-child(1)) {
