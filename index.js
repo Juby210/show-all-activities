@@ -38,16 +38,28 @@ module.exports = class ShowAllActivities extends Plugin {
                 if (!activity) return args
                 this.props.activity = activity
                 this.props.game = getGame(activity.application_id)
+
+                // fix for streaming
+                if (this.state.activity > 0 && this.props.streamingGuild) {
+                    this.props._streamingGuild = this.props.streamingGuild
+                    delete this.props.streamingGuild
+                } else if (this.state.activity === 0 && this.props._streamingGuild) this.props.streamingGuild = this.props._streamingGuild
             }
             return args
         }, true)
 
         const _this = this
         inject('show-all-activities', UserActivity.prototype, 'render', function (_, res) {
+            if (this.props.__saa || this.state.activity > 0) {
+                const actions = findInReactTree(res, c => c && c.onOpenConnections)
+                if (actions) {
+                    actions.activity = this.props.activity
+                    delete actions.applicationStream
+                }
+            }
+
             if (this.props.__saa) {
                 res = res.props.children
-                const actions = findInReactTree(res, c => c && c.onOpenConnections)
-                if (actions) actions.activity = this.props.activity
                 return res
             }
 
@@ -56,8 +68,8 @@ module.exports = class ShowAllActivities extends Plugin {
             if (!res?.props?.children || !activities || !activities.length || collapsible && activities.length <= 1) return res
             if (collapsible) {
                 const defaultOpened = _this.settings.get('autoOpen')
-                res.props.children = activities.map(a => React.createElement(CollapsibleActivity, {
-                    ...this.props, activity: a, game: getGame(a.application_id), defaultOpened
+                res.props.children = activities.map((a, i) => React.createElement(CollapsibleActivity, {
+                    ...this.props, activity: a, game: getGame(a.application_id), defaultOpened, i
                 }))
                 return res
             }
@@ -88,8 +100,6 @@ module.exports = class ShowAllActivities extends Plugin {
                 onClick: () => this.setState({ activity: this.state.activity + 1 })
             }, React.createElement(Icon, { direction: 'RIGHT', name: 'Arrow' }))))
 
-            const actions = findInReactTree(res.props, c => c && c.onOpenConnections)
-            if (actions) actions.activity = this.props.activity
             return res
         })
     }
