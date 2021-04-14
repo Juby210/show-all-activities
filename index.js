@@ -1,11 +1,13 @@
 const { Plugin } = require('powercord/entities')
 const { getModule, getModuleByDisplayName, i18n: { Messages }, React } = require('powercord/webpack')
-const { Button, Icon, Tooltip } = require('powercord/components')
+const { Button, Tooltip } = require('powercord/components')
 const { findInReactTree } = require('powercord/util')
 const { inject, uninject } = require('powercord/injector')
 
 const CollapsibleActivity = require('./components/CollapsibleActivity')
 const Settings = require('./components/Settings')
+
+const Arrow = getModule(m => m.displayName === 'Arrow' && !m.prototype?.render, false)
 
 let temp
 const filterActivities = (a, i) => {
@@ -93,7 +95,7 @@ module.exports = class ShowAllActivities extends Plugin {
                 color: Button.Colors.WHITE,
                 look: Button.Looks.OUTLINED,
                 onClick: () => this.setState({ activity: this.state.activity - 1 })
-            }, React.createElement(Icon, { direction: 'LEFT', name: 'Arrow' }))))
+            }, React.createElement(Arrow, { direction: 'LEFT' }))))
             if (this.state.activity < activities.length - 1) children.push(React.createElement(Tooltip, {
                 className: `allactivities-right${marginClass}`,
                 text: Messages.NEXT
@@ -103,7 +105,7 @@ module.exports = class ShowAllActivities extends Plugin {
                 color: Button.Colors.WHITE,
                 look: Button.Looks.OUTLINED,
                 onClick: () => this.setState({ activity: this.state.activity + 1 })
-            }, React.createElement(Icon, { direction: 'RIGHT', name: 'Arrow' }))))
+            }, React.createElement(Arrow, { direction: 'RIGHT' }))))
 
             return res
         })
