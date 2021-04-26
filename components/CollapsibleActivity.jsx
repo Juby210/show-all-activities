@@ -23,8 +23,13 @@ module.exports = class CollapsibleActivity extends React.PureComponent {
         header.props.className += ' allactivities-collapsibleheader'
 
         if (!this.state.opened) {
-            if (!header.props.children.find(c => c?.includes && c.includes(this.props.activity.name)))
-                header.props.children.splice(header.props.children.length - 2, 0, ' ' + this.props.activity.name)
+            if (!header.props.children.find(c => c?.includes && c.includes(this.props.activity.name))) {
+                if (header.props.children.find(c => c?.includes && c.includes('Playing a game'))) {
+                    header.props.children.splice(header.props.children.length - 3, 1, `Playing ${this.props.activity.name}`)
+                } else {
+                    header.props.children.splice(header.props.children.length - 2, 0, ` ${this.props.activity.name}`)
+                }
+            }
             return header
         }
         return <>
