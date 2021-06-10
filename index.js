@@ -33,7 +33,7 @@ module.exports = class ShowAllActivities extends Plugin {
         const _getGame = a => getGame(a.application_id) || getGameByName(a.name)
 
         inject('show-all-activities-pre', UserActivity.prototype, 'render', function (args) {
-            if (this.props.__saa) return args
+            if (this.props.__saa || this.props.type === 'Profile') return args
             const activities = getActivities(this.props.user.id).filter(filterActivities)
             if (!activities || !activities.length) return args
             if (!this.state) this.state = { activity: activities.indexOf(this.props.activity) }
@@ -54,6 +54,7 @@ module.exports = class ShowAllActivities extends Plugin {
 
         const _this = this
         inject('show-all-activities', UserActivity.prototype, 'render', function (_, res) {
+            if (this.props.type === 'Profile') return res
             if (this.props.__saa || this.state?.activity > 0) {
                 const actions = findInReactTree(res, c => c && c.onOpenConnections)
                 if (actions) {

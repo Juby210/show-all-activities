@@ -1,11 +1,6 @@
 const { React, getModuleByDisplayName } = require('powercord/webpack')
+const { Icon } = require('powercord/components')
 const UserActivity = getModuleByDisplayName('UserActivity', false)
-
-const Icons = {
-    ArrowDropDown: getModuleByDisplayName('ArrowDropDown', false),
-    ArrowDropUp: getModuleByDisplayName('ArrowDropUp', false)
-}
-const Icon = props => React.createElement(Icons[props.name], props)
 
 module.exports = class CollapsibleActivity extends React.PureComponent {
     constructor(props) {

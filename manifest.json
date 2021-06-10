@@ -1,7 +1,7 @@
 {
     "name": "Show All Activities",
-    "description": "See every status a user has enabled.",
+    "description": "Shows all user activities in places that Discord doesn't show them.",
     "author": "Juby210#0577",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "license": "MIT"
 }
