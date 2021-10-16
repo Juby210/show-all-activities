@@ -98,7 +98,6 @@ module.exports = class ShowAllActivities extends Plugin {
             const openFirst = _this.settings.get('autoOpenFirst', true);
 
             res.props.children = activities.map((a, i) => {
-               console.log('i', i);
                return (
                   <CollapsibleActivity
                      {...this.props}
@@ -121,13 +120,14 @@ module.exports = class ShowAllActivities extends Plugin {
          if (this.state.activity != 0) {
             children.unshift(
                <Tooltip
-                  className={['allactivites-left', marginClass].join(' ')}
+                  className={['allactivities-left', marginClass].join(' ')}
                   text={Messages.PAGINATION_PREVIOUS}
                >
                   <Button
                      className={classes.iconButtonSize}
                      size={Button.Sizes.MIN}
                      color={Button.Colors.WHITE}
+                     look={Button.Looks.OUTLINED}
                      onClick={() => this.setState({ activity: this.state.activity - 1 })}
                   >
                      <Arrow direction='LEFT' />
@@ -139,13 +139,14 @@ module.exports = class ShowAllActivities extends Plugin {
          if (this.state.activity < activities.length - 1) {
             children.push(
                <Tooltip
-                  className={['allactivites-left', marginClass].join(' ')}
+                  className={['allactivities-left', marginClass].join(' ')}
                   text={Messages.NEXT}
                >
                   <Button
                      className={classes.iconButtonSize}
                      size={Button.Sizes.MIN}
                      color={Button.Colors.WHITE}
+                     look={Button.Looks.OUTLINED}
                      onClick={() => this.setState({ activity: this.state.activity + 1 })}
                   >
                      <Arrow direction='RIGHT' />

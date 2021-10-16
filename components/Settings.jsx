@@ -20,7 +20,7 @@ module.exports = React.memo(({ getSetting, toggleSetting }) =>
       <SwitchItem
          value={getSetting('autoOpenFirst')}
          onChange={() => toggleSetting('autoOpenFirst', true)}
-         disabled={!getSetting('autoOpen')}
+         disabled={!getSetting('collapsibleActivities') || !getSetting('autoOpen')}
       >
          Only open first activity
       </SwitchItem>
