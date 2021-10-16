@@ -1,5 +1,5 @@
 # show-all-activities
-Shows all user activities in places that Discord doesn't show them.
+See every status a user has enabled.
 
 ![preview](https://i.imgur.com/MYCfZon.jpg)
 
