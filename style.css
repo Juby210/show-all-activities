@@ -1,19 +1,26 @@
 .allactivities-left {
     margin-right: 8px;
 }
+
 .allactivities-right {
     margin-left: 8px;
-}
-.allactivities-margin {
-    margin-top: 12px;
-}
-.allactivities-margin2 {
-    margin-top: 22px;
 }
 
 .allactivities-collapsibleheader {
     cursor: pointer;
 }
+
 .allactivities-collapsibleheader:not(:nth-child(1)) {
-    margin-top: 20px;
+    margin-top: 10px;
+}
+
+.allactivities-collapsibleheader:last-of-type {
+    margin-bottom: 0px;
+}
+
+.allactivities-header-arrow {
+    margin-left: auto;
+    margin-top: -2.5px;
+    max-width: 20px;
+    max-height: 20px;
 }
