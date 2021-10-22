@@ -11,9 +11,9 @@ const Settings = require('./components/Settings');
 
 // Modules
 const Arrow = getModule(m => m.displayName === 'Arrow' && !m.prototype?.render, false);
-const { getGame, getGameByName } = getModule(['getGame', 'getGameByName'], false);
+const { getGame, getGameByName } = getModule(['getGame', 'getGameByName'], false) || {};
 const UserActivity = getModuleByDisplayName('UserActivity', false);
-const { getActivities } = getModule(['getActivities'], false);
+const { getActivities } = getModule(['getActivities', 'getUserIds'], false) || {};
 const classes = getModule(['iconButtonSize'], false);
 
 // Utility
